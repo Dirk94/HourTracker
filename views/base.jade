@@ -1,0 +1,83 @@
+-var leftmenu = { "Home" : "/" };
+-var rightmenuLoggedout = {"Register" : "/register", "Login" : "/login" };
+-var rightmenuLoggedin = {"Account" : "/user/dashboard", "Logout" : "/user/logout" };
+
+
+doctype html
+html(lang="en" ng-app="timetracker")
+    head
+        meta(charset="utf-8")
+        meta(http-equiv="X-UA-Compatible" content="IE=edge")
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+
+        title Time Tracker
+        
+        link(href="/../bower_components/fontawesome/css/font-awesome.min.css" rel="stylesheet")
+        link(href="/../bower_components/select2/dist/css/select2.min.css" rel="stylesheet")
+        link(href="/../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet")
+        link(href="/css/main.css" rel="stylesheet")
+        
+        script(src="/../bower_components/jquery/dist/jquery.min.js")
+        script(src="/../bower_components/bootstrap/dist/js/bootstrap.min.js")
+        script(src="/../bower_components/angular/angular.min.js")
+        script(src="/../bower_components/select2/dist/js/select2.full.min.js")
+        
+        script.
+            // initialize the angular application.
+            app = angular.module("timetracker", []);
+            
+            // initialize the tooltips.
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
+            
+        script(src="/js/directives.js")
+        
+        block head
+        
+        body
+                
+            div(class="container")
+                nav(class="navbar navbar-default")
+                    div(class="container-fluid")
+                        div(class="navbar-header")
+                            button(type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar")
+                                span(class="sr-only") Toggle navigation
+                                span(class="icon-bar")
+                                span(class="icon-bar")
+                                span(class="icon-bar")
+                            
+                            a(class="navbar-brand" href="/") Time Tracker
+                        
+                        div(id="navbar" class="navbar-collapse collapse")
+                            ul(class="nav navbar-nav")
+                                // Generate the left-aligned menu.
+                                each val, key in leftmenu
+                                    if active == key
+                                        li(class="active")
+                                            a(href=val) #{key}
+                                    else 
+                                        li
+                                            a(href=val) #{key}
+                                            
+                                        
+                            ul(class="nav navbar-nav navbar-right")
+                                // Generate the right-aligned menu.
+                                if loggedIn
+                                    each val, key in rightmenuLoggedin
+                                        if active == key
+                                            li(class="active")
+                                                a(href=val) #{key}
+                                        else 
+                                            li
+                                                a(href=val) #{key}
+                                else 
+                                    each val, key in rightmenuLoggedout
+                                        if active == key
+                                            li(class="active")
+                                                a(href=val) #{key}
+                                        else
+                                            li
+                                                a(href=val) #{key}
+                        
+                block content

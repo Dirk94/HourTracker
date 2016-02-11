@@ -1,0 +1,42 @@
+extends account-base
+
+block breadcrumbs
+    li 
+        a(href="/user/home") Account Home
+    li Your Projects
+
+block account-content                
+            h3 Your Projects
+
+            p Can't find your project? 
+                a(href="/user/project/create") Create a new one
+
+            table(class="table table-striped")
+                thead
+                    tr  
+                        th Project
+                        th Creator
+                        th Collaborators
+                        th Your hours
+                        th Total hours
+                    
+                tbody
+                    tr
+                        td 
+                            a(href="") Time Tracker
+                        td Yes
+                        td 1
+                        td 12.5
+                        td 12.5
+                        td
+                            a(href="" class="btn btn-xs btn-default") Edit
+                            &nbsp;
+                            a(href="" class="btn btn-xs btn-danger") Delete
+                    
+                    tr
+                        td 
+                            a(href="") Qlever
+                        td No
+                        td 3
+                        td 20
+                        td 821.4

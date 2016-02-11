@@ -1,0 +1,11 @@
+{
+    "name" : "timetracker",
+    "version" : "1.0.0",
+
+    "dependencies" : {
+        "bootstrap" : "3.3.5",
+        "fontawesome" : "latest",
+        "angular" : "latest",
+        "select2" : "latest"
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "timetracker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./app.js"
+  },
+  "dependencies": {
+    "express": "latest",
+    "jade": "latest",
+    "body-parser": "latest",
+    "monk": "latest",
+    "express-session": "latest",
+    "connect-mongo": "latest"
+  }
+}

@@ -1,0 +1,55 @@
+#register-button-homepage {
+    margin-right: 20px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.btn-quick-action {
+    margin-right: 4px;
+    margin-top: 4px;
+}
+
+.btn-quick-action-last {
+    margin-top: 4px;
+}
+
+.bg-danger, .bg-success, .bg-info {
+    padding: 10px;
+}
+
+.input-error {
+    color: red;
+}
+
+.input-success {
+    color: green;
+}
+
+.fa-facebook-official {
+    color: rgb(77,104,162);
+}
+
+.extra-bottom-margin {
+    margin-bottom: 20px;
+}
+
+.form-warning {
+    color: rgb(132,53,52);
+}
+
+.form-valid {
+    color: rgb(60,118,61);
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+
+a:hover {
+    cursor: pointer;
+}

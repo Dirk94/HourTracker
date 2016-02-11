@@ -1,0 +1,85 @@
+extends account-base
+
+block breadcrumbs
+    li Account Home
+
+block account-content
+        h4 Quick Actions:
+
+        p
+            a(class="btn btn-md btn-primary btn-quick-action" href="" role="button")
+                i(class="fa fa-plus-square fa-fw")
+                | &nbsp;Create new project
+
+            a(class="btn btn-md btn-default btn-quick-action" href="" role="button")
+                i(class="fa fa-pencil fa-fw")
+                | &nbsp;Edit a project
+            a(class="btn btn-md btn-info btn-quick-action-last" href="" role="button")
+                i(class="fa fa-line-chart fa-fw")
+                | &nbsp;View logged hours
+
+        hr
+
+        h3 Log Hours
+        form
+            div(class="form-group row")
+                div(class="col-lg-6 col-sm-8")
+                    label(for="project") Project
+                    select(class="form-control selectpicker" data-live-search="true")
+                        option Tribal Wars
+                        option Time Tracker
+                        option RoyalBot
+
+
+            div(class="form-group")
+                label(for="hours") Hours
+                div(class="row")
+                    div(class="col-lg-3 col-sm-4 col-xs-6")
+                        div(class="input-group")
+                            span(class="input-group-addon")
+                                span(class="fa fa-clock-o")
+                            input(class="form-control" type="text" placeholder="From")
+
+                    div(class="col-lg-3 col-sm-4 col-xs-6")
+                        div(class="input-group")
+                            span(class="input-group-addon")
+                                span(class="fa fa-clock-o")
+                            input(class="form-control" type="text" placeholder="Till")
+
+            div(class="form-group row")
+                div(class="col-lg-6 col-sm-8")
+                    label(for="date") Date
+                    input(class="form-control" type="text" value="Today")
+
+            div(class="form-group row")
+                div(class="col-lg-6 col-sm-8")
+                    button(type="submit" class="btn btn-primary btn-block") Log Hours
+
+        hr
+
+        h3 Last logged hours
+        p
+            a(href="/user/stats") View detailed statistics
+        table(class="table table-striped")
+            thead
+                tr
+                    th Project
+                    th Date
+                    th Hours
+
+            tbody
+                tr
+                    td
+                        a(href="") Time Tracker
+                    td 06 Feb 2016
+                    td 12.5
+                    td
+                        a(href="" class="btn btn-xs btn-danger") Delete
+
+                tr
+                    td
+                        a(href="") Tribal Wars
+                    td 08 Feb 2016
+                    td 3
+                    td
+                        a(href="" class="btn btn-xs btn-danger") Delete

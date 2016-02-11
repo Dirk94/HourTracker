@@ -1,0 +1,106 @@
+extends base
+
+block content
+    script.
+        app.controller("RegisterController", ["$scope", "$http",
+            function($scope, $http) {
+                $scope.showResponse = false;
+                $scope.showButton = true;
+                $scope.waitingForResponse = false;
+                
+                $scope.register = function(user) {
+                    $scope.waitingForResponse = true;
+                    $scope.showButton = false;
+                    $http({
+                        method: "POST",
+                        url: "/api/user/register",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        data: user
+                    }).then(function success(response) {
+                        $scope.waitingForResponse = false;
+                        $scope.showResponse = true;
+                        
+                        $scope.success = response.data.success;
+                        $scope.message = response.data.message;
+                        
+                        if ($scope.success) {
+                            $scope.showButton = false;
+                        } else {
+                            $scope.showButton = true;
+                        }
+                    }, function error(response) {
+                        $scope.waitingForResponse = false;
+                        $scope.showResponse = true;
+                        $scope.showButton = true;
+                        
+                        $scope.success = false;
+                        $scope.message = "Unable to connect the backend server.";
+                    });
+                }
+                
+            }]);
+        
+    div(class="row")        
+        div(class="col-md-6 col-md-offset-3")
+            p(class="bg-info text-center") Already have an account? Skip the line and 
+                a(href="/login") login here
+            
+            h3(class="text-center extra-bottom-margin") Start logging your hours
+            
+            p(class="text-center extra-bottom-margin")
+                a(href="#")
+                    img(src="/img/fblogin.png")
+                    
+            p(class="text-center")
+                | Easily sign up with Facebook, we won't post anything on your timeline.
+            
+            hr
+            
+            h3(class="text-center") Sign up with email
+                
+            div(class="col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2")            
+                form(ng-controller="RegisterController" name="registerform")
+                    div(class="form-group")
+                        input(ng-model="user.name" name="name" required type="text" class="form-control" placeholder="Name")
+                        p(ng-show="registerform.name.$dirty && registerform.name.$error.required" class="form-warning")
+                            | Please enter a valid name.
+                
+                    div(class="form-group" ng-class="{'has-error': registerform.email.$dirty && (registerform.email.$error.validEmail || registerform.email.$error.uniqueWaiting || registerform.email.$error.unique)}")
+                        input(ng-model="user.email" valid-email unique="{collection: 'users', field: 'email', ignoreSelf: false}" type="email" class="form-control" name="email" placeholder="Email")
+                        p(ng-show="registerform.email.$dirty && registerform.email.$error.validEmail" class="form-warning")
+                            | Please enter a valid email
+                        p(ng-show="registerform.email.$dirty && !registerform.email.$error.validEmail && registerform.email.$error.uniqueWaiting")
+                            | Checking email...
+                        p(ng-show="registerform.email.$dirty && !registerform.email.$error.validEmail && !registerform.email.$error.uniqueWaiting && registerform.email.$error.unique " class="form-warning") 
+                            | The email already exists.
+                        p(ng-show="registerform.email.$dirty && !registerform.email.$error.validEmail && !registerform.email.$error.uniqueWaiting && !registerform.email.$error.unique " class="form-valid") 
+                            | The email is availible
+                    
+                    div(class="form-group")
+                        input(ng-model="user.password" required type="password" class="form-control" placeholder="Password")
+                            
+                    div(class="form-group" ng-class="{'has-error': registerform.confirmPassword.$error.equalTo}")
+                        input(ng-model="user.confirmPassword" required equal-to="user.password" type="password" class="form-control" name="confirmPassword" placeholder="Confirm Password")
+                       p(ng-show="registerform.confirmPassword.$error.equalTo")
+                            | The passwords don't match.
+                    
+                    div(ng-if="showResponse == true")
+                        div(ng-if="success == false")
+                            p(class="bg-danger")
+                                {{ message }}
+                                
+                        div(ng-if="success == true")
+                            p(class="bg-success")
+                                {{ message }} 
+                                a(href="/login") Login here
+                    
+                    div(ng-if="showButton == true")
+                        div(class="form-group")
+                            button(ng-click="register(user)" ng-disabled="!registerform.$valid" type="button" class="btn btn-primary btn-block") Register
+                            
+                    div(ng-if="waitingForResponse == true")
+                        p
+                            i(class="fa fa-spinner fa-spin")
+                            | &nbsp;Registering

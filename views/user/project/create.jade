@@ -1,0 +1,116 @@
+extends ../account-base
+
+block breadcrumbs
+    script.
+        $(document).ready(function() {
+            $("#users").select2({
+                ajax: {
+                    url: "/api/user/prefix",
+                    dataType: "json",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            prefix: params.term
+                        };
+                    },
+                    processResults: function(data, params) {
+                        var convertedData = [];
+                        for (var i=0; i<data.message.length; i++) {
+                            if (data.message[i].email != "#{user.email}") {
+                                convertedData.push({
+                                    id: data.message[i].email,
+                                    text: data.message[i].name + " | " + data.message[i].email
+                                })
+                            }
+                        }
+                        
+                        return {
+                            results: convertedData
+                        }
+                    }
+                },
+                escapeMarkup: function(markup) { return markup; }
+            });
+        });
+        
+        app.controller("CreateController", ["$scope", "$http",
+            function($scope, $http) {
+                $scope.showResponse = false;
+                $scope.showButton = true;
+                $scope.waitingForResponse = false;
+                
+                $scope.createproject = function(project) {
+                    $scope.waitingForResponse = true;
+                    $scope.showButton = false;
+                    $http({
+                        method: "POST",
+                        url: "/api/project/create",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        data: project
+                    }).then(function success(response) {
+                        $scope.waitingForResponse = false;
+                        $scope.showResponse = true;
+                        
+                        $scope.success = response.data.success;
+                        $scope.message = response.data.message;
+                        
+                        if ($scope.success) {
+                            $scope.showButton = false;
+                            $scope.message = "Project created successfully.";
+                            $scope.projectid = response.data.message;
+                        } else {
+                            $scope.showButton = true;
+                        }
+                    }, function error(response) {
+                        $scope.waitingForResponse = false;
+                        $scope.showResponse = true;
+                        $scope.showButton = true;
+                        
+                        $scope.success = false;
+                        $scope.message = "Unable to connect the backend server.";
+                    });
+                }                
+            }]);
+   
+    li 
+        a(href="/user/home") Account Home
+    li Create a project
+    
+block account-content 
+    h3 Create a project
+    
+    form(ng-controller="CreateController" name="createprojectform")
+        div(class="form-group")
+            input(ng-model="project.name" required name="name" type="text" class="form-control" placeholder="Project name")
+            p(ng-show="createprojectform.name.$dirty && createprojectform.name.$error.required" class="form-warning")
+                | Please enter a valid project name.
+            
+        div(class="form-group")
+            label(for="users") Add Users to Project
+            select(ng-model="project.users" class="form-control" id="users" multiple="multiple" placeholder="Add users to project")
+            
+        div(class="form-group")
+            textarea(ng-model="project.description" rows="5" class="form-control" placeholder="Project description")
+            
+        div(ng-if="showResponse == true")
+            div(ng-if="success == false")
+                p(class="bg-danger")
+                    {{ message }}
+                    
+            div(ng-if="success == true")
+                p(class="bg-success")
+                    {{ message }} 
+                    a(href="/user/project/{{projectid}}") View project 
+                    | or 
+                    a(href="/user/project/create") Create another project 
+            
+        div(ng-if="showButton == true")
+            div(class="form-group")
+                button(ng-click="createproject(project)" ng-disabled="!createprojectform.$valid" type="submit" class="btn btn-primary btn-block") Create Project
+                
+        div(ng-if="waitingForResponse == true")
+            p
+                i(class="fa fa-spinner fa-spin")
+                | &nbsp;Registering   
