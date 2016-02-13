@@ -11,6 +11,8 @@
     "body-parser": "latest",
     "monk": "latest",
     "express-session": "latest",
-    "connect-mongo": "latest"
+    "connect-mongo": "latest",
+    "flow": "latest",
+    "log": "latest"
   }
 }

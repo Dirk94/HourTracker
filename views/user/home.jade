@@ -1,20 +1,35 @@
 extends account-base
 
 block breadcrumbs
+    script.
+        $(document).ready(function() {
+            $(".clockpicker").clockpicker({
+                placement: "top",
+                autoclose: true,
+                "default": "now"
+            });
+            
+            $(".datepicker").datepicker({
+                format: "dd-mm-yyyy",
+                todayBtn: "linked",
+                autoclose: true,
+                todayHighlight: true,
+                defaultViewDate: new Date()
+            });
+        });
+        
+    
     li Account Home
 
 block account-content
         h4 Quick Actions:
 
         p
-            a(class="btn btn-md btn-primary btn-quick-action" href="" role="button")
+            a(class="btn btn-md btn-primary btn-quick-action" href="/user/project/create" role="button")
                 i(class="fa fa-plus-square fa-fw")
                 | &nbsp;Create new project
 
-            a(class="btn btn-md btn-default btn-quick-action" href="" role="button")
-                i(class="fa fa-pencil fa-fw")
-                | &nbsp;Edit a project
-            a(class="btn btn-md btn-info btn-quick-action-last" href="" role="button")
+            a(class="btn btn-md btn-default btn-quick-action-last" href="/user/stats" role="button")
                 i(class="fa fa-line-chart fa-fw")
                 | &nbsp;View logged hours
 
@@ -26,9 +41,8 @@ block account-content
                 div(class="col-lg-6 col-sm-8")
                     label(for="project") Project
                     select(class="form-control selectpicker" data-live-search="true")
-                        option Tribal Wars
-                        option Time Tracker
-                        option RoyalBot
+                        each val in projects   
+                            option=val.name
 
 
             div(class="form-group")
@@ -38,18 +52,18 @@ block account-content
                         div(class="input-group")
                             span(class="input-group-addon")
                                 span(class="fa fa-clock-o")
-                            input(class="form-control" type="text" placeholder="From")
+                            input(class="form-control clockpicker" type="text" placeholder="From")
 
                     div(class="col-lg-3 col-sm-4 col-xs-6")
                         div(class="input-group")
                             span(class="input-group-addon")
                                 span(class="fa fa-clock-o")
-                            input(class="form-control" type="text" placeholder="Till")
+                            input(class="form-control clockpicker" type="text" placeholder="Till")
 
             div(class="form-group row")
                 div(class="col-lg-6 col-sm-8")
                     label(for="date") Date
-                    input(class="form-control" type="text" value="Today")
+                    input(class="form-control datepicker" type="text" value="Today")
 
             div(class="form-group row")
                 div(class="col-lg-6 col-sm-8")

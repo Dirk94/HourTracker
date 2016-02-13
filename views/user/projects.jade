@@ -1,16 +1,19 @@
 extends account-base
 
 block breadcrumbs
+    script.
+        var projects = !{JSON.stringify(projects)};
+        console.log(projects);
+    
     li 
         a(href="/user/home") Account Home
     li Your Projects
 
-block account-content                
-            h3 Your Projects
-
+block account-content 
             p Can't find your project? 
                 a(href="/user/project/create") Create a new one
 
+            h3 Projects Created by You
             table(class="table table-striped")
                 thead
                     tr  
@@ -21,22 +24,24 @@ block account-content
                         th Total hours
                     
                 tbody
-                    tr
-                        td 
-                            a(href="") Time Tracker
-                        td Yes
-                        td 1
-                        td 12.5
-                        td 12.5
-                        td
-                            a(href="" class="btn btn-xs btn-default") Edit
-                            &nbsp;
-                            a(href="" class="btn btn-xs btn-danger") Delete
-                    
-                    tr
-                        td 
-                            a(href="") Qlever
-                        td No
-                        td 3
-                        td 20
-                        td 821.4
+                    each val in created
+                        tr
+                            td
+                                a(href="/project/"+val._id)= val.name
+                            td Yes
+                            td=val.users.length+1
+                            td 0.0
+                            td 0.0
+                            td
+                                a(href="/project/"+val._id+"/edit" class="btn btn-xs btn-default") Edit
+                                &nbsp;
+                                a(href="/project/"+val._id+"/delete" class="btn btn-xs btn-danger") Delete
+                                
+                    each val in added
+                        tr
+                            td 
+                                a(href="/project/"+val._id)= val.name
+                            td No
+                            td=val.users.length+1
+                            td 0.0
+                            td 0.0

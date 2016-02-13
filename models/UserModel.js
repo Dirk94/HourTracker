@@ -1,4 +1,5 @@
 var cb = require("../helpers/callback.js");
+var flow = require("flow");
 
 const COLLECTION = "users";
 
@@ -11,25 +12,34 @@ var UserModel = function() { };
  * if success is true, message is an array otherwise a string.
  */
 UserModel.prototype.findUserByPrefix = function(db, prefix, callback) {
-    var users = db.get(COLLECTION);
-    users.find({ $or: [ {email: new RegExp("^" + prefix)}, {name: new RegExp("^" + prefix)} ] }, {}, function(error, documents) {
-        if (error) {
-            callback(cb.failed("Unknown error occured."));
-            console.log(error);
-            return;
-        }
+    try {
+        var users = db.get(COLLECTION);
 
-        var users = [];
-        for (var i=0; i<documents.length; i++) {
-            var document = documents[i];
-            users.push({
-                name: document.name,
-                email: document.email
-            });
-        }
+        flow.exec(
+            function() {
+                users.find({ $or: [
+                        {emailUppercase: new RegExp("^" + prefix.toUpperCase())},
+                        {nameUppercase: new RegExp("^" + prefix.toUpperCase())}
+                    ] }, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
 
-        callback(cb.success(users));
-    });
+                var users = [];
+                for (var i=0; i<documents.length; i++) {
+                    var document = documents[i];
+                    users.push({
+                        name: document.name,
+                        email: document.email
+                    });
+                }
+
+                callback(cb.success(users));
+            }
+        );
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error(error);
+    }
 }
 
 /**
@@ -37,22 +47,13 @@ UserModel.prototype.findUserByPrefix = function(db, prefix, callback) {
  * If success is true message is the user id, otherwise the error string.
  */
 UserModel.prototype.getIdFromEmail = function(db, email, callback) {
-    var users = db.get(COLLECTION);
-    users.find({email: email}, {}, function(error, documents) {
-        if (error) {
-            callback(cb.failed("Unknown error occured."));
-            console.log(error);
-            return;
+    this.getIdsFromEmails(db, [email], function(response) {
+        if (response.success) {
+            callback(cb.success(response.message[0]));
+        } else {
+            callback(cb.failed(response.message));
         }
-
-        if (documents.length == 0) {
-            callback(cb.failed("User not found."));
-            return;
-        }
-
-        var user = documents[0];
-        callback(cb.success(user._id));
-    })
+    });
 }
 
 /**
@@ -62,36 +63,45 @@ UserModel.prototype.getIdFromEmail = function(db, email, callback) {
  * otherwise it contains the error message.
  */
 UserModel.prototype.getIdsFromEmails = function(db, emails, callback) {
-    var users = db.get(COLLECTION);
+    try {
+        if (emails == undefined) {
+            callback(cb.failed("No emails supplied."));
+            return;
+        }
+        if (emails.length <= 0) {
+            callback(cb.failed("Invalid emails supplied."));
+            return;
+        }
 
-    if (emails == undefined) { callback(cb.failed("No emails supplied.")); return; }
-    if (emails.length <= 0) { callback(cb.failed("Invalid emails supplied.")); return; }
+        var query = [];
+        for (var i=0; i<emails.length; i++) {
+            query.push({emailUppercase: emails[i].toUpperCase()});
+        }
 
-    var query = [];
-    for (var i=0; i<emails.length; i++) {
-        query.push({
-            email: emails[i]
-        });
+        var users = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                users.find({ $or: query }, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                if (documents.length <= 0) {
+                    callback(cb.failed("User not found."));
+                    return;
+                }
+
+                var ids = [];
+                for (var i=0; i<documents.length; i++) {
+                    ids.push(documents[i]._id.toString());
+                }
+                callback(cb.success(ids));
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error(error);
     }
-
-    users.find({ $or: query }, {}, function(error, documents) {
-        if (error) {
-            callback(cb.failed("Unknown error occured."));
-            console.log(error);
-            return;
-        }
-
-        if (documents.length == 0) {
-            callback(cb.failed("User not found."));
-            return;
-        }
-
-        var ids = [];
-        for (var i=0; i<documents.length; i++) {
-            ids.push(documents[i]._id);
-        }
-        callback(cb.success(ids));
-    });
 }
 
 /**
@@ -99,25 +109,32 @@ UserModel.prototype.getIdsFromEmails = function(db, emails, callback) {
  * If success is true, message is an object consisting of name, email, date
  */
 UserModel.prototype.getUser = function(db, id, callback) {
-    var users = db.get(COLLECTION);
-    users.findById(id, function(error, document) {
-        if (error) {
-            callback(cb.failed("Unknown error occured."));
-            console.log(error);
-            return;
-        }
+    try {
+        var users = db.get(COLLECTION);
 
-        if (document == undefined) {
-            callback(cb.failed("User not found."));
-            return;
-        }
+        flow.exec(
+            function() {
+                users.findById(id, this);
+            }, function(error, document) {
+                if (error) { throw error; }
 
-        callback(cb.success({
-            name: document.name,
-            email: document.email,
-            date: document.datetime
-        }));
-    })
+                if (document == undefined) {
+                    callback(cb.failed("User not found."));
+                    return;
+                }
+
+                callback(cb.success({
+                    userid: document._id,
+                    name: document.name,
+                    email: document.email,
+                    date: document.datetime
+                }));
+            }
+        );
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error(error);
+    }
 }
 
 /**
@@ -125,32 +142,49 @@ UserModel.prototype.getUser = function(db, id, callback) {
  * callback(response): response containing success, message.
  */
 UserModel.prototype.register = function(db, data, callback) {
-    if (data.email == undefined) { callback(cb.failed("Please enter a valid email.")); return; }
-    if (data.password == undefined) { callback(cb.failed("Please enter a valid password.")); return; }
-
-    var users = db.get(COLLECTION);
-    users.find({email: data.email}, {}, function(error, documents) {
-        if (error) {
-            console.log(error);
-            callback(cb.failed("Unknown error occured."));
+    try {
+        if (data.email == undefined) {
+            callback(cb.failed("Please enter a valid email."));
+            return;
         }
-        if (documents.length == 0) {
-            users.insert({
-                name: data.name,
-                email: data.email,
-                password: data.password,
-                datetime: new Date()
+        if (data.password == undefined) {
+            callback(cb.failed("Please enter a valid password."));
+            return;
+        }
+
+        var users = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                users.find({emailUppercase: data.email.toUpperCase()}, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                if (documents.length > 0) {
+                    callback(cb.failed("The email already exists."));
+                    return;
+                }
+
+                users.insert({
+                    name: data.name,
+                    nameUppercase: data.name.toUpperCase(),
+                    email: data.email,
+                    emailUppercase: data.email.toUpperCase(),
+                    password: data.password,
+                    datetime: new Date()
+                }, this)
             }, function(error) {
                 if (error) {
-                    console.log(error);
-                    callback(cb.failed("Unknown error occured."));
+                    throw error;
+                } else {
+                    callback(cb.success("Your account has been created."));
                 }
-            });
-            callback(cb.success("Your account has been created."));
-        } else {
-            callback(cb.failed("The email already exists."));
-        }
-    });
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error(error);
+    }
 }
 
 /**
@@ -158,23 +192,38 @@ UserModel.prototype.register = function(db, data, callback) {
  * callback(response): response containing success, message.
  */
 UserModel.prototype.login = function(db, session, data, callback) {
-    if (data.email == undefined) { callback(cb.failed("Please enter a valid email.")); return; }
-    if (data.password == undefined) { callback(cb.failed("Please enter a valid password.")); return; }
-
-    var users = db.get(COLLECTION);
-    users.find({email: data.email, password: data.password}, {}, function(error, documents) {
-        if (error) {
-            callback(cb.failed("Unknown error occured."));
-            console.log(error);
+    try {
+        if (data.email == undefined) {
+             callback(cb.failed("Please enter a valid email."));
+             return;
+        }
+        if (data.password == undefined) {
+            callback(cb.failed("Please enter a valid password."));
             return;
         }
-        if (documents.length == 0) {
-            callback(cb.failed("Incorrect username or password."));
-        } else {
-            session.userid = documents[0]._id;
-            callback(cb.success(""));
-        }
-    });
+
+        var users = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                users.find({emailUppercase: data.email.toUpperCase(), password: data.password}, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                if (documents.length == 0) {
+                    callback(cb.failed("Incorrect username or password."));
+                    return;
+                }
+
+
+                session.userid = documents[0]._id;
+                callback(cb.success(""));
+            }
+        );
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error(error);
+    }
 }
 
 /**

@@ -28,7 +28,7 @@ module.exports.isUnique = function(req, res, next) {
     var collection = req.db.get(query.collection);
 
     var dbquery = {};
-    dbquery[query.field] = query.value;
+    dbquery[query.field] = query.value.toUpperCase();
     var id = query.id;
 
     if (forbiddenFields.indexOf(query.field) != -1) {

@@ -16,11 +16,13 @@ block breadcrumbs
                     processResults: function(data, params) {
                         var convertedData = [];
                         for (var i=0; i<data.message.length; i++) {
-                            if (data.message[i].email != "#{user.email}") {
-                                convertedData.push({
-                                    id: data.message[i].email,
-                                    text: data.message[i].name + " | " + data.message[i].email
-                                })
+                            if (data.message[i].email != undefined && data.message[i].name != undefined) {
+                                if (data.message[i].email != "#{user.email}") {
+                                    convertedData.push({
+                                        id: data.message[i].email,
+                                        text: data.message[i].name + " | " + data.message[i].email
+                                    })
+                                }
                             }
                         }
                         

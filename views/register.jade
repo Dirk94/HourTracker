@@ -68,7 +68,7 @@ block content
                             | Please enter a valid name.
                 
                     div(class="form-group" ng-class="{'has-error': registerform.email.$dirty && (registerform.email.$error.validEmail || registerform.email.$error.uniqueWaiting || registerform.email.$error.unique)}")
-                        input(ng-model="user.email" valid-email unique="{collection: 'users', field: 'email', ignoreSelf: false}" type="email" class="form-control" name="email" placeholder="Email")
+                        input(ng-model="user.email" valid-email unique="{collection: 'users', field: 'emailUppercase', ignoreSelf: false}" type="email" class="form-control" name="email" placeholder="Email")
                         p(ng-show="registerform.email.$dirty && registerform.email.$error.validEmail" class="form-warning")
                             | Please enter a valid email
                         p(ng-show="registerform.email.$dirty && !registerform.email.$error.validEmail && registerform.email.$error.uniqueWaiting")

@@ -1,5 +1,6 @@
 var cb = require("../helpers/callback.js");
 var UserModel = require("./UserModel.js");
+var flow = require("flow");
 
 const COLLECTION = "projects";
 
@@ -13,32 +14,81 @@ var ProjectModel = function() { };
  * the error message.
  */
 ProjectModel.prototype.create = function(db, session, data, callback) {
-    var projects = db.get(COLLECTION);
-    console.log(JSON.stringify(data));
-
-    if (data.name == undefined) { callback(cb.failed("Please enter a valid name.")); return; }
-
-    UserModel.getIdsFromEmails(db, data.users, function(response) {
-        var ids = [];
-        if (response.success) {
-            ids = response.message;
+    try {
+        if (data.name == undefined) {
+            callback(cb.failed("Please enter a valid name"));
+            return
         }
 
-        projects.insert({
-            name: data.name,
-            creator: session.userid,
-            users: ids,
-            description: data.description,
-            datetime: new Date()
-        }, function(error, document) {
-            if (error) {
-                console.log(error);
-                callback(cb.failed("Unknown error occured."));
-            } else {
+        flow.exec(
+            function() {
+                UserModel.getIdsFromEmails(db, data.users, this);
+            }, function(response) {
+                var ids = response.success ? response.message : [];
+                var projects = db.get(COLLECTION);
+
+                projects.insert({
+                    name: data.name,
+                    creator: session.userid,
+                    users: ids,
+                    description: data.description,
+                    datetime: new Date()
+                }, this);
+            }, function(error, document) {
+                if (error) {
+                    throw error;
+                }
+
                 callback(cb.success(document._id));
             }
-        });
-    });
+        );
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error(error);
+    }
+}
+
+/**
+ * callback(response): Response containing success, message.
+ * If success is true message is the array of projects created by the user logged in.
+ * Otherwise message contains the error string.
+ */
+ProjectModel.prototype.getCreatedProjects = function(db, session, callback) {
+    try {
+        var projects = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                projects.find({creator: session.userid}, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                callback(cb.success(documents));
+            }
+        );
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error(error);
+    }
+}
+
+ProjectModel.prototype.getAddedProjects = function(db, session, callback) {
+    try {
+        var projects = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                projects.find({users: session.userid }, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                callback(cb.success(documents));
+            }
+        );
+    } catch(error) {
+            callback(cb.failed("Unknown error occured."));
+            log.error(error);
+    }
 }
 
 module.exports = new ProjectModel();

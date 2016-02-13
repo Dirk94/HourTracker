@@ -6,6 +6,8 @@
         "bootstrap" : "3.3.5",
         "fontawesome" : "latest",
         "angular" : "latest",
-        "select2" : "latest"
+        "select2" : "latest",
+        "clockpicker" : "latest",
+        "bootstrap-datepicker": "latest"
     }
 }

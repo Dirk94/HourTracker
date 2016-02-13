@@ -5,8 +5,12 @@ var bodyparser = require("body-parser");
 var db = require("monk")("localhost/timetracker");
 var session = require("express-session");
 var MongoStore = require("connect-mongo")(session);
+var fs = require("fs");
+var Log = require("log");
 
 var app = express();
+
+log = new Log('debug', fs.createWriteStream('timetracker.log'));
 
 app.use(session({
     secret: "abc",
