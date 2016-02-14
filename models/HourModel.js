@@ -67,6 +67,38 @@ HourModel.prototype.logHours = function(db, session, data, callback) {
     }
 }
 
+HourModel.prototype.deleteHours = function(db, session, hourid, callback) {
+    try {
+        var hours = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                hours.findById(hourid, {}, this);
+            }, function(error, document) {
+                if (error) { throw error; }
+
+                if (document == undefined) {
+                    callback(cb.failed("Hours not found."));
+                    return;
+                }
+
+                if (document.user != session.userid) {
+                    callback(cb.failed("You don't have permission to do this."));
+                    return;
+                }
+
+                hours.remove({_id: document._id}, this)
+            }, function(error) {
+                if (error) { throw error; }
+                callback(cb.success("Hours deleted successfully."));
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("HourModel.prototype.deleteHours: " + error);
+    }
+}
+
 HourModel.prototype.getLastLoggedHours = function(db, session, callback) {
     try {
         var hours = db.get(COLLECTION);

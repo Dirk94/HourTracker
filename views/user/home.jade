@@ -2,6 +2,7 @@ extends account-base
 
 block breadcrumbs
     script.
+        
         $(document).ready(function() {
             $(".clockpicker").clockpicker({
                 placement: "top",
@@ -56,6 +57,39 @@ block breadcrumbs
                         $scope.success = false;
                         $scope.message = "Unable to connect the backend server.";
                     });
+                }
+            }
+        ]);
+        
+        app.controller("HourTableController", ["$scope", "$http", 
+            function($scope, $http) {
+                $scope.hours = !{JSON.stringify(hours)};
+                for (var i=0; i<$scope.hours.length; i++) {
+                    $scope.hours[i].showDelete = true;
+                }
+                
+                $scope.delete = function(hour) {
+                    hour.showDelete = false;
+                    
+                    $http({
+                        method: "POST",
+                        url: "/api/hours/delete",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        data: {
+                            hourid: hour._id
+                        }
+                    }).then(function success(response) {
+                        if (response.data.success) {
+                            var index = $scope.hours.indexOf(hour);
+                            $scope.hours.splice(index, 1);
+                        } else {
+                            hour.showDelete = true;
+                        }
+                    }, function error(response) {
+                        hour.showDelete = true;
+                    })
                 }
             }
         ]);
@@ -137,7 +171,7 @@ block account-content
         h3 Last logged hours
         p
             a(href="/user/stats") View detailed statistics
-        table(class="table table-striped")
+        table(ng-controller="HourTableController" class="table table-striped")
             thead
                 tr
                     th Project
@@ -146,14 +180,17 @@ block account-content
                     th Hours
 
             tbody
-                each hour in hours
-                    tr
-                        td 
-                            a(href="/project/" + hour.project)=hour.projectName
-                        td=hour.date
-                        td=hour.from + " - " + hour.till
-                        td=hour.hours
-                        td
-                            a(href="" class="btn btn-xs btn-danger") Delete
+                tr(ng-repeat="hour in hours")
+                    td
+                        a(href="/project/{{hour.project}}") {{hour.projectName}}
+                    td {{hour.date}}
+                    td {{hour.from}}
+                    td {{hour.hours}}
+                    td 
+                        a(ng-click="delete(hour)" ng-show="hour.showDelete" class="btn btn-xs btn-danger") Delete
+                        div(ng-show="!hour.showDelete")
+                            i(class="fa fa-spinner fa-spin")
+                            | &nbsp;Deleting
+
             
                 

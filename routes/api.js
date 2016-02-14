@@ -65,4 +65,10 @@ router.post("/hours/log", middleware.auth, middleware.isUserOfProject, function(
     })
 });
 
+router.post("/hours/delete", middleware.auth, function(req, res, next) {
+    HourModel.deleteHours(req.db, req.session, req.body.hourid, function(response) {
+        res.send(response);
+    })
+})
+
 module.exports = router;
