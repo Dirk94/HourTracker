@@ -7,6 +7,7 @@ var flow = require("flow");
 
 var UserModel = require("../models/UserModel.js");
 var ProjectModel = require("../models/ProjectModel.js");
+var HourModel = require("../models/HourModel.js");
 
 router.post("/user/register", function(req, res, next) {
     UserModel.register(req.db, req.body, function(response) {
@@ -56,6 +57,12 @@ router.get("/projects", middleware.auth, function(req, res, next) {
             });
         }
     )
+});
+
+router.post("/hours/log", middleware.auth, middleware.canLogHours, function(req, res, next) {
+    HourModel.logHours(req.db, req.session, req.body, function(response) {
+        res.send(response);
+    })
 });
 
 module.exports = router;

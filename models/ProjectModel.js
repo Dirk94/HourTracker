@@ -72,6 +72,11 @@ ProjectModel.prototype.getCreatedProjects = function(db, session, callback) {
     }
 }
 
+/**
+ * callback(response): Response containing success, message.
+ * If success is true message is the array of projects that the user has been added to.
+ * Otherwise message contains the error string.
+ */
 ProjectModel.prototype.getAddedProjects = function(db, session, callback) {
     try {
         var projects = db.get(COLLECTION);
@@ -88,6 +93,42 @@ ProjectModel.prototype.getAddedProjects = function(db, session, callback) {
     } catch(error) {
             callback(cb.failed("Unknown error occured."));
             log.error(error);
+    }
+}
+
+ProjectModel.prototype.isUserOfProject = function(db, session, projectid, callback) {
+    try {
+        var projects = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                projects.findById(projectid, {}, this)
+            }, function(error, document) {
+                if (error) { throw error; }
+
+                if (document == undefined) {
+                    callback(cb.failed("Project not found."));
+                    return;
+                }
+
+                if (document.creator == session.userid) {
+                    callback(cb.success(""));
+                    return;
+                }
+
+                for (var i=0; i<document.users; i++) {
+                    if (users[i] == session.userid) {
+                        callback(cb.success(""));
+                        return;
+                    }
+                }
+
+                callback(cb.failed("You don't have permission to do this."));
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error(error);
     }
 }
 

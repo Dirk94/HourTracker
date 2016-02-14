@@ -29,7 +29,6 @@ router.get("/user/home", middleware.auth, function(req, res, next) {
                 user: response["user"].message,
                 projects: (response["createdProjects"].message).concat(response["addedProjects"].message)
             };
-            console.log(JSON.stringify(robj));
             res.render("user/home", robj);
         }
     )
