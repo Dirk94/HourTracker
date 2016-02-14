@@ -59,7 +59,7 @@ router.get("/projects", middleware.auth, function(req, res, next) {
     )
 });
 
-router.post("/hours/log", middleware.auth, middleware.canLogHours, function(req, res, next) {
+router.post("/hours/log", middleware.auth, middleware.isUserOfProject, function(req, res, next) {
     HourModel.logHours(req.db, req.session, req.body, function(response) {
         res.send(response);
     })

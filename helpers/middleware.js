@@ -8,12 +8,12 @@ module.exports.auth = function(req, res, next) {
     res.redirect("/login");
 }
 
-module.exports.canLogHours = function(req, res, next) {
+module.exports.isUserOfProject = function(req, res, next) {
     ProjectModel.isUserOfProject(req.db, req.session, req.body.project, function(response) {
         if (response.success) {
             return next();
         } else {
-            res.render(response);
+            res.send(response);
         }
     });
 }

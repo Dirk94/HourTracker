@@ -38,7 +38,7 @@ UserModel.prototype.findUserByPrefix = function(db, prefix, callback) {
         );
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("UserModel.prototype.findUserByPrefix: " + error);
     }
 }
 
@@ -100,7 +100,7 @@ UserModel.prototype.getIdsFromEmails = function(db, emails, callback) {
         )
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("UserModel.prototype.getIdsFromEmails: " + error);
     }
 }
 
@@ -133,7 +133,7 @@ UserModel.prototype.getUser = function(db, id, callback) {
         );
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("UserModel.prototype.getUser: " + error);
     }
 }
 
@@ -183,7 +183,7 @@ UserModel.prototype.register = function(db, data, callback) {
         )
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("UserModel.prototype.register: " + error);
     }
 }
 
@@ -222,7 +222,7 @@ UserModel.prototype.login = function(db, session, data, callback) {
         );
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("UserModel.prototype.login: " + error);
     }
 }
 

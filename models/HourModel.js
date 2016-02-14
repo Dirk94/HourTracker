@@ -2,7 +2,7 @@ var cb = require("../helpers/callback.js");
 var flow = require("flow");
 var time = require("../helpers/time.js");
 
-var HourModel = require("./HourModel.js");
+var ProjectModel = require("./ProjectModel.js");
 
 const COLLECTION = "hours";
 
@@ -25,12 +25,30 @@ HourModel.prototype.logHours = function(db, session, data, callback) {
             return;
         }
 
+        var hourslogged = time.getHourDifference(data.from, data.till);
+        if (hourslogged < 0) {
+            callback(cb.failed("The second time should be later than the first time."));
+            return;
+        }
         var hours = db.get(COLLECTION);
 
         flow.exec(
             function() {
+                ProjectModel.getProjectFromId(db, data.project, this);
+            },
+            function(response) {
+                if (!response.success) {
+                    callback(cb.failed(response.message));
+                    return;
+                }
+
+                projectname = response.message.name;
+                hourslogged = hourslogged.toFixed(1);
+
                 hours.insert({
                     project: data.project,
+                    projectName: projectname,
+                    hours: hourslogged,
                     from: data.from,
                     till: data.till,
                     date: data.date,
@@ -43,12 +61,28 @@ HourModel.prototype.logHours = function(db, session, data, callback) {
                 callback(cb.success(document));
             }
         )
-
-
-
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("HourModel.prototype.logHours: " + error);
+    }
+}
+
+HourModel.prototype.getLastLoggedHours = function(db, session, callback) {
+    try {
+        var hours = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                hours.find({user: session.userid}, {limit: 5, sort: {"dateCreated": -1}}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                callback(cb.success(documents));
+            }
+        );
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("HourModel.prototype.getLastLoggedHours: " + error);
     }
 }
 

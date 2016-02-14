@@ -44,7 +44,7 @@ ProjectModel.prototype.create = function(db, session, data, callback) {
         );
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("ProjectModel.prototype.create: " + error);
     }
 }
 
@@ -68,7 +68,7 @@ ProjectModel.prototype.getCreatedProjects = function(db, session, callback) {
         );
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("ProjectModel.prototype.getCreatedProjects: " + error);
     }
 }
 
@@ -92,7 +92,7 @@ ProjectModel.prototype.getAddedProjects = function(db, session, callback) {
         );
     } catch(error) {
             callback(cb.failed("Unknown error occured."));
-            log.error(error);
+            log.error("ProjectModel.prototype.getAddedProjects: " + error);
     }
 }
 
@@ -116,8 +116,8 @@ ProjectModel.prototype.isUserOfProject = function(db, session, projectid, callba
                     return;
                 }
 
-                for (var i=0; i<document.users; i++) {
-                    if (users[i] == session.userid) {
+                for (var i=0; i<document.users.length; i++) {
+                    if (document.users[i] == session.userid) {
                         callback(cb.success(""));
                         return;
                     }
@@ -128,7 +128,31 @@ ProjectModel.prototype.isUserOfProject = function(db, session, projectid, callba
         )
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error(error);
+        log.error("ProjectModel.prototype.isUserOfProject: " + error);
+    }
+}
+
+ProjectModel.prototype.getProjectFromId = function(db, projectid, callback) {
+    try {
+        var projects = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                projects.findById(projectid, {}, this);
+            }, function(error, document) {
+                if (error) { throw error; }
+
+                if (document == undefined) {
+                    callback(cb.failed("Project not found."));
+                    return;
+                }
+
+                callback(cb.success(document));
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("ProjectModel.prototype.getProjectFromId: " + error);
     }
 }
 

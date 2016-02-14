@@ -142,21 +142,18 @@ block account-content
                 tr
                     th Project
                     th Date
+                    th Time
                     th Hours
 
             tbody
-                tr
-                    td
-                        a(href="") Time Tracker
-                    td 06 Feb 2016
-                    td 12.5
-                    td
-                        a(href="" class="btn btn-xs btn-danger") Delete
-
-                tr
-                    td
-                        a(href="") Tribal Wars
-                    td 08 Feb 2016
-                    td 3
-                    td
-                        a(href="" class="btn btn-xs btn-danger") Delete
+                each hour in hours
+                    tr
+                        td 
+                            a(href="/project/" + hour.project)=hour.projectName
+                        td=hour.date
+                        td=hour.from + " - " + hour.till
+                        td=hour.hours
+                        td
+                            a(href="" class="btn btn-xs btn-danger") Delete
+            
+                
