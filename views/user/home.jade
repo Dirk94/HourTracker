@@ -41,11 +41,9 @@ block breadcrumbs
                 resetShowDelete();
                 
                 $scope.loghours = function(hour) {
-                    var url = "/api/users/" + $scope.user.userid  + "/hours";
-                    console.log("Hours: " + JSON.stringify(url));
                     $http({
                         method: "POST",
-                        url: url,
+                        url: "/api/users/" + $scope.user.userid  + "/hours",
                         headers: {
                             "Content-Type": "application/json"
                         },
@@ -79,13 +77,10 @@ block breadcrumbs
                     hour.showDelete = false;
                     
                     $http({
-                        method: "POST",
-                        url: "/api/hours/delete",
+                        method: "DELETE",
+                        url: "/api/users/" + $scope.user.userid + "/hours/" + hour._id,
                         headers: {
                             "Content-Type": "application/json"
-                        },
-                        data: {
-                            hourid: hour._id
                         }
                     }).then(function success(response) {
                         if (response.data.success) {
