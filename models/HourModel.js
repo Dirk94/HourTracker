@@ -8,6 +8,8 @@ const COLLECTION = "hours";
 
 var HourModel = function() { };
 
+var THIS = this;
+
 HourModel.prototype.logHours = function(db, session, data, callback) {
     try {
         if (data.project == undefined) {
@@ -57,7 +59,6 @@ HourModel.prototype.logHours = function(db, session, data, callback) {
                 }, this);
             }, function(error, document) {
                 if (error) { throw error; }
-
                 callback(cb.success(document));
             }
         )

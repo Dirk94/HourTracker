@@ -60,15 +60,35 @@ router.get("/projects", middleware.auth, function(req, res, next) {
 });
 
 router.post("/hours/log", middleware.auth, middleware.isUserOfProject, function(req, res, next) {
-    HourModel.logHours(req.db, req.session, req.body, function(response) {
-        res.send(response);
-    })
+    flow.exec(
+        function() {
+            HourModel.logHours(req.db, req.session, req.body, this);
+        }, function(response) {
+            if (!response.success) {
+                res.send(response);
+            } else {
+                HourModel.getLastLoggedHours(req.db, req.session, this);
+            }
+        }, function(response) {
+            res.send(response);
+        }
+    );
 });
 
 router.post("/hours/delete", middleware.auth, function(req, res, next) {
-    HourModel.deleteHours(req.db, req.session, req.body.hourid, function(response) {
-        res.send(response);
-    })
+    flow.exec(
+        function() {
+            HourModel.deleteHours(req.db, req.session, req.body.hourid, this);
+        }, function(response) {
+            if (!response.success) {
+                res.send(response);
+            } else {
+                HourModel.getLastLoggedHours(req.db, req.session, this);
+            }
+        }, function(response) {
+            res.send(response);
+        }
+    );
 })
 
 module.exports = router;
