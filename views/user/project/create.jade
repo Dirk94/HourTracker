@@ -4,8 +4,9 @@ block breadcrumbs
     script.
         $(document).ready(function() {
             $("#users").select2({
+                width: "100%",
                 ajax: {
-                    url: "/api/user/prefix",
+                    url: "/api/prefix",
                     dataType: "json",
                     delay: 250,
                     data: function(params) {
@@ -37,6 +38,8 @@ block breadcrumbs
         
         app.controller("CreateController", ["$scope", "$http",
             function($scope, $http) {
+                $scope.user = !{JSON.stringify(user)};
+                
                 $scope.showResponse = false;
                 $scope.showButton = true;
                 $scope.waitingForResponse = false;
@@ -46,7 +49,7 @@ block breadcrumbs
                     $scope.showButton = false;
                     $http({
                         method: "POST",
-                        url: "/api/project/create",
+                        url: "/api/users/" + $scope.user.userid + "/projects",
                         headers: {
                             "Content-Type": "application/json"
                         },

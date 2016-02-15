@@ -18,12 +18,15 @@ block breadcrumbs
                 defaultViewDate: new Date()
             });
             
-            $(".selectpicker").select2();
+            $(".selectpicker").select2({
+                width: "100%"
+            });
         });
         
         app.controller("HomeController", ["$scope", "$http",
             function($scope, $http) {
                 $scope.hours = !{JSON.stringify(hours)};
+                $scope.user = !{JSON.stringify(user)};
                 
                 var resetShowDelete = function() {    
                     for (var i=0; i<$scope.hours.length; i++) {
@@ -38,10 +41,11 @@ block breadcrumbs
                 resetShowDelete();
                 
                 $scope.loghours = function(hour) {
-                    console.log("Hours: " + JSON.stringify(hour));
+                    var url = "/api/users/" + $scope.user.userid  + "/hours";
+                    console.log("Hours: " + JSON.stringify(url));
                     $http({
                         method: "POST",
-                        url: "/api/hours/log",
+                        url: url,
                         headers: {
                             "Content-Type": "application/json"
                         },

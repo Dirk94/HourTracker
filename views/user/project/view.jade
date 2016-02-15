@@ -1,0 +1,61 @@
+extends ../account-base
+
+block breadcrumbs
+    script.
+        app.controller("ViewController", ["$scope", "$http",
+            function($scope, $http) {
+                $scope.project = !{JSON.stringify(project)};
+                $scope.userhours = !{JSON.stringify(userhours)};
+            }
+        ]);
+    
+    li 
+        a(href="/user/home") Account Home
+    li View Project
+    
+block account-content
+    div(ng-controller="ViewController")
+        h3 {{ project.name }}
+        p {{ project.description }}
+            
+        
+        table(class="table")
+            tbody
+                tr
+                    td Total Hours on Project
+                    td {{ project.hours }}
+                
+                tr 
+                    td Your Hours on Project
+                    td {{ userhours.hours }}
+                    
+                tr 
+                    td Your Hours this Month
+                    td {{ userhours.hoursThisMonth }}
+
+        h3 Your Logged Hours
+        table(class="table table-striped")
+            thead
+                tr
+                    th Date
+                    th Time
+                    th Hours
+
+            tbody
+                tr
+                    td 15-02-2016
+                    td 09:00 - 10:30
+                    td 1.5
+                    td 
+                        a(class="btn btn-xs btn-danger") Delete
+        
+        p Showing 1 of 1 entries
+        nav
+            ul(class="pagination")
+                li
+                    a(href="#" aria-label="Previous")
+                        span(aria-hidden="true") &laquo; previous
+                    
+                    li
+                        a(href="#" aria-label="Next")
+                            span(aria-hidden="true") next &raquo;

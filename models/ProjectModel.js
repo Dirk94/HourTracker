@@ -48,6 +48,30 @@ ProjectModel.prototype.create = function(db, session, data, callback) {
     }
 }
 
+ProjectModel.prototype.getProject = function(db, session, projectid, callback) {
+    try {
+        var projects = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                projects.findById(projectid, {}, this);
+            }, function(error, document) {
+                if (error) { throw error; }
+
+                if (document == undefined) {
+                    callback(cb.failed("Project not found."));
+                    return;
+                }
+
+                callback(cb.success(document));
+            }
+        );
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("ProjectModel.prototype.getProject: " + error);
+    }
+}
+
 /**
  * callback(response): Response containing success, message.
  * If success is true message is the array of projects created by the user logged in.

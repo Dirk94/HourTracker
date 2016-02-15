@@ -119,4 +119,56 @@ HourModel.prototype.getLastLoggedHours = function(db, session, callback) {
     }
 }
 
+HourModel.prototype.getProjectHours = function(db, projectid, callback) {
+    try {
+        var hours = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                hours.find({project: projectid}, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                var hours = 0;
+                for (var i=0; i<documents.length; i++) {
+                    hours += parseFloat(documents[i].hours);
+                }
+                callback(cb.success({hours: hours.toFixed(1)}));
+
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("HourModel.prototype.getProjectHours: " + error);
+    }
+}
+
+HourModel.prototype.getUserHoursOfProject = function(db, session, projectid, callback) {
+    try {
+        var hours = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                hours.find({project: projectid, user: session.userid}, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                var hours = 0, hoursThisMonth = 0;
+                var currentMonth = new Date().getMonth();
+                for (var i=0; i<documents.length; i++) {
+                    hours += parseFloat(documents[i].hours);
+                    var month = parseInt(documents[i].date.match(/\d\d-(\d\d)-\d\d\d\d/)[1])-1;
+                    if (currentMonth == month) {
+                        hoursThisMonth += parseFloat(documents[i].hours);
+                    }
+                }
+                callback(cb.success({hours: hours.toFixed(1), hoursThisMonth: hoursThisMonth.toFixed(1)}));
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("HourModel.prototype.getUserHoursOfProject: " + error);
+    }
+}
+
 module.exports = new HourModel();

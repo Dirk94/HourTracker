@@ -53,3 +53,7 @@
 a:hover {
     cursor: pointer;
 }
+
+.pagination {
+    margin-top: 0px;
+}

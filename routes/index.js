@@ -45,17 +45,37 @@ router.get("/user/home", middleware.auth, function(req, res, next) {
     )
 });
 
+router.get("/project/:id", middleware.auth, function(req, res, next) {
+    flow.exec(
+        function() {
+            UserModel.getUser(req.db, req.session.userid, this.MULTI("user"));
+            ProjectModel.getProject(req.db, req.session, req.params.id, this.MULTI("project"));
+            HourModel.getProjectHours(req.db, req.params.id, this.MULTI("hours"));
+            HourModel.getUserHoursOfProject(req.db, req.session, req.params.id, this.MULTI("userhours"));
+        }, function(response) {
+            var project = response["project"].message;
+            project.hours = response["hours"].message.hours;
+
+            res.render("user/project/view", {
+                user: response["user"].success ? response["user"].message : {},
+                project: project,
+                userhours: response["userhours"].message
+            })
+        }
+    )
+});
+
 router.get("/user/projects", middleware.auth, function(req, res, next) {
     flow.exec(
         function() {
             UserModel.getUser(req.db, req.session.userid, this.MULTI("user"));
-            ProjectModel.getCreatedProjects(req.db, req.session, this.MULTI("createdProjects"));
-            ProjectModel.getAddedProjects(req.db, req.session, this.MULTI("addedProjects"));
+            ProjectModel.getCreatedProjects(req.db, req.session, this.MULTI("created"));
+            ProjectModel.getAddedProjects(req.db, req.session, this.MULTI("added"));
         }, function(response) {
             res.render("user/projects", {
-                user: response["user"].message,
-                created: response["createdProjects"].message,
-                added: response["addedProjects"].message
+                user: response["user"].success ? response["user"].message : {},
+                created: response["created"].success ? response["created"].message : [],
+                added: response["added"].success ? response["added"].message : [],
             });
         }
     );
@@ -64,7 +84,7 @@ router.get("/user/projects", middleware.auth, function(req, res, next) {
 router.get("/user/project/create", middleware.auth, function(req, res, next) {
     UserModel.getUser(req.db, req.session.userid, function(response) {
         res.render("user/project/create", {
-            user: response.message
+            user: response.success ? response.message : {}
         });
     })
 });
