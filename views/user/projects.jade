@@ -24,20 +24,20 @@ block account-content
                     each val in created
                         tr
                             td
-                                a(href="/project/"+val._id)= val.name
+                                a(href="/user/project/"+val._id)= val.name
                             td Yes
                             td=val.users.length+1
                             td 0.0
                             td 0.0
                             td
-                                a(href="/project/"+val._id+"/edit" class="btn btn-xs btn-default") Edit
+                                a(href="/user/project/"+val._id+"/edit" class="btn btn-xs btn-default") Edit
                                 &nbsp;
-                                a(href="/project/"+val._id+"/delete" class="btn btn-xs btn-danger") Delete
+                                a(href="/user/project/"+val._id+"/delete" class="btn btn-xs btn-danger") Delete
                                 
                     each val in added
                         tr
                             td 
-                                a(href="/project/"+val._id)= val.name
+                                a(href="/user/project/"+val._id)= val.name
                             td No
                             td=val.users.length+1
                             td 0.0

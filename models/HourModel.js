@@ -10,7 +10,7 @@ var HourModel = function() { };
 
 var THIS = this;
 
-HourModel.prototype.logHours = function(db, session, data, callback) {
+HourModel.prototype.create = function(db, session, data, callback) {
     try {
         if (data.project == undefined) {
             callback(cb.failed("Please select a project."));
@@ -64,11 +64,11 @@ HourModel.prototype.logHours = function(db, session, data, callback) {
         )
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error("HourModel.prototype.logHours: " + error);
+        log.error("HourModel.prototype.create: " + error);
     }
 }
 
-HourModel.prototype.deleteHours = function(db, session, hourid, callback) {
+HourModel.prototype.delete = function(db, session, hourid, callback) {
     try {
         var hours = db.get(COLLECTION);
 
@@ -96,11 +96,11 @@ HourModel.prototype.deleteHours = function(db, session, hourid, callback) {
         )
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error("HourModel.prototype.deleteHours: " + error);
+        log.error("HourModel.prototype.delete: " + error);
     }
 }
 
-HourModel.prototype.getLastLoggedHours = function(db, session, callback) {
+HourModel.prototype.getLastLogged = function(db, session, callback) {
     try {
         var hours = db.get(COLLECTION);
 
@@ -115,59 +115,68 @@ HourModel.prototype.getLastLoggedHours = function(db, session, callback) {
         );
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error("HourModel.prototype.getLastLoggedHours: " + error);
+        log.error("HourModel.prototype.getLastLogged: " + error);
     }
 }
 
-HourModel.prototype.getProjectHours = function(db, projectid, callback) {
+HourModel.prototype.getProjectStats = function(db, session, projectid, callback) {
     try {
         var hours = db.get(COLLECTION);
 
         flow.exec(
             function() {
-                hours.find({project: projectid}, {}, this);
-            }, function(error, documents) {
-                if (error) { throw error; }
+                hours.find({project: projectid}, {}, this.MULTI("project"));
+                hours.find({project: projectid, user: session.userid}, {}, this.MULTI("user"));
+            }, function(documents) {
+                var projectresponse = documents[0];
+                var userresponse = documents[1];
 
-                var hours = 0;
-                for (var i=0; i<documents.length; i++) {
-                    hours += parseFloat(documents[i].hours);
+                var projectdocuments = (projectresponse != undefined) ? projectresponse[1] : [];
+                var userdocuments = (userresponse != undefined) ? userresponse[1] : [];
+
+                var hours = 0, hoursThisMonth = 0, projectHours = 0;
+
+                for (var i=0; i<projectdocuments.length; i++) {
+                    projectHours += parseFloat(projectdocuments[i].hours);
                 }
-                callback(cb.success({hours: hours.toFixed(1)}));
 
-            }
-        )
-    } catch(error) {
-        callback(cb.failed("Unknown error occured."));
-        log.error("HourModel.prototype.getProjectHours: " + error);
-    }
-}
-
-HourModel.prototype.getUserHoursOfProject = function(db, session, projectid, callback) {
-    try {
-        var hours = db.get(COLLECTION);
-
-        flow.exec(
-            function() {
-                hours.find({project: projectid, user: session.userid}, {}, this);
-            }, function(error, documents) {
-                if (error) { throw error; }
-
-                var hours = 0, hoursThisMonth = 0;
                 var currentMonth = new Date().getMonth();
-                for (var i=0; i<documents.length; i++) {
-                    hours += parseFloat(documents[i].hours);
-                    var month = parseInt(documents[i].date.match(/\d\d-(\d\d)-\d\d\d\d/)[1])-1;
+                for (var i=0; i<userdocuments.length; i++) {
+                    hours += parseFloat(userdocuments[i].hours);
+                    var month = parseInt(userdocuments[i].date.match(/\d\d-(\d\d)-\d\d\d\d/)[1])-1;
                     if (currentMonth == month) {
-                        hoursThisMonth += parseFloat(documents[i].hours);
+                        hoursThisMonth += parseFloat(userdocuments[i].hours);
                     }
                 }
-                callback(cb.success({hours: hours.toFixed(1), hoursThisMonth: hoursThisMonth.toFixed(1)}));
+
+                callback(cb.success({
+                    projectHours: projectHours.toFixed(1),
+                    userHours: hours.toFixed(1),
+                    hoursThisMonth: hoursThisMonth.toFixed(1)
+                }));
             }
         )
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
-        log.error("HourModel.prototype.getUserHoursOfProject: " + error);
+        log.error("HourModel.prototype.getProjectStats: " + error);
+    }
+}
+
+HourModel.prototype.getProjectLastLogged = function(db, session, projectid, callback) {
+    try {
+        var hours = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                hours.find({user: session.userid, project: projectid}, {sort: {"dateCreated": -1}}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+                callback(cb.success(documents));
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("HourModel.prototype.getProjectLastLogged: " + error);
     }
 }
 

@@ -5,7 +5,8 @@ block breadcrumbs
         app.controller("ViewController", ["$scope", "$http",
             function($scope, $http) {
                 $scope.project = !{JSON.stringify(project)};
-                $scope.userhours = !{JSON.stringify(userhours)};
+                $scope.stats = !{JSON.stringify(stats)};
+                $scope.lastlogged = !{JSON.stringify(lastlogged)};
             }
         ]);
     
@@ -23,31 +24,37 @@ block account-content
             tbody
                 tr
                     td Total Hours on Project
-                    td {{ project.hours }}
+                    td {{ stats.projectHours }}
                 
                 tr 
                     td Your Hours on Project
-                    td {{ userhours.hours }}
+                    td {{ stats.userHours }}
                     
                 tr 
                     td Your Hours this Month
-                    td {{ userhours.hoursThisMonth }}
+                    td {{ stats.hoursThisMonth }}
 
         h3 Your Logged Hours
         table(class="table table-striped")
             thead
                 tr
+                    th Project
                     th Date
                     th Time
                     th Hours
 
             tbody
-                tr
-                    td 15-02-2016
-                    td 09:00 - 10:30
-                    td 1.5
+                tr(ng-repeat="hour in lastlogged")
+                    td
+                        a(href="/user/project/{{hour.project}}") {{hour.projectName}}
+                    td {{hour.date}}
+                    td {{hour.from}} - {{hour.till}}
+                    td {{hour.hours}}
                     td 
-                        a(class="btn btn-xs btn-danger") Delete
+                        a(ng-click="delete(hour)" ng-show="!hour.showDelete" class="btn btn-xs btn-danger") Delete
+                        div(ng-show="hour.showDelete")
+                            i(class="fa fa-spinner fa-spin")
+                            | &nbsp;Deleting
         
         p Showing 1 of 1 entries
         nav

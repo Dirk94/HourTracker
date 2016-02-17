@@ -23,17 +23,15 @@ app.use(function(req, res, next) {
     next();
 });
 
-
-
 app.use(bodyparser.json());
 
-var routes = require("./routes/index");
 var api = require("./routes/api/api");
 var users = require("./routes/api/users");
 var hours = require("./routes/api/hours");
 var projects = require("./routes/api/projects");
 
-app.use("/", routes);
+app.use("/", require("./routes/site/index"));
+app.use("/", require("./routes/site/user"));
 app.use("/api", api);
 app.use("/api", users);
 app.use("/api", hours);

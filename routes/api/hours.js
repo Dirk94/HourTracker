@@ -9,12 +9,12 @@ var HourModel = require("../../models/HourModel.js");
 router.delete("/users/:userid/hours/:hourid", middleware.apiAuth, function(req, res, next) {
     flow.exec(
         function() {
-            HourModel.deleteHours(req.db, req.session, req.params.hourid, this);
+            HourModel.delete(req.db, req.session, req.params.hourid, this);
         }, function(response) {
             if (!response.success) {
                 res.send(response);
             } else {
-                HourModel.getLastLoggedHours(req.db, req.session, this);
+                HourModel.getLastLogged(req.db, req.session, this);
             }
         }, function(response) {
             res.send(response);
@@ -26,12 +26,12 @@ router.delete("/users/:userid/hours/:hourid", middleware.apiAuth, function(req, 
 router.post("/users/:userid/hours", middleware.apiAuth, function(req, res, next) {
     flow.exec(
         function() {
-            HourModel.logHours(req.db, req.session, req.body, this);
+            HourModel.create(req.db, req.session, req.body, this);
         }, function(response) {
             if (!response.success) {
                 res.send(response);
             } else {
-                HourModel.getLastLoggedHours(req.db, req.session, this);
+                HourModel.getLastLogged(req.db, req.session, this);
             }
         }, function(response) {
             res.send(response);

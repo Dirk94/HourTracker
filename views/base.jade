@@ -1,6 +1,6 @@
 -var leftmenu = { "Home" : "/" };
 -var rightmenuLoggedout = {"Register" : "/register", "Login" : "/login" };
--var rightmenuLoggedin = {"Account" : "/user/dashboard", "Logout" : "/user/logout" };
+-var rightmenuLoggedin = {"Account" : "/user/home", "Logout" : "/api/users/logout" };
 
 
 doctype html
@@ -67,7 +67,7 @@ html(lang="en" ng-app="timetracker")
                                         
                             ul(class="nav navbar-nav navbar-right")
                                 // Generate the right-aligned menu.
-                                if loggedIn
+                                if user
                                     each val, key in rightmenuLoggedin
                                         if active == key
                                             li(class="active")

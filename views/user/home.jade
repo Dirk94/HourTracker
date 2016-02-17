@@ -185,7 +185,7 @@ block account-content
             tbody
                 tr(ng-repeat="hour in hours")
                     td
-                        a(href="/project/{{hour.project}}") {{hour.projectName}}
+                        a(href="/user/project/{{hour.project}}") {{hour.projectName}}
                     td {{hour.date}}
                     td {{hour.from}} - {{hour.till}}
                     td {{hour.hours}}

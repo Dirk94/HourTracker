@@ -120,6 +120,24 @@ ProjectModel.prototype.getAddedProjects = function(db, session, callback) {
     }
 }
 
+ProjectModel.prototype.getAllProjects = function(db, session, callback) {
+    var _this = this;
+    flow.exec(
+        function() {
+            _this.getCreatedProjects(db, session, this.MULTI("created"));
+            _this.getAddedProjects(db, session, this.MULTI("added"));
+        }, function(response) {
+            var projects;
+            if (response["created"].success && response["added"].success) {
+                projects = (response["created"].message).concat(response["added"].message);
+            } else {
+                projects = [];
+            }
+            callback(cb.success(projects));
+        }
+    )
+}
+
 ProjectModel.prototype.isUserOfProject = function(db, session, projectid, callback) {
     try {
         var projects = db.get(COLLECTION);
