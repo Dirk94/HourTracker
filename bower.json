@@ -8,6 +8,7 @@
         "angular" : "latest",
         "select2" : "latest",
         "clockpicker" : "latest",
-        "bootstrap-datepicker": "latest"
+        "bootstrap-datepicker": "latest",
+        "flot": "latest"
     }
 }

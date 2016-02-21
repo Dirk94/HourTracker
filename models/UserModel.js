@@ -43,26 +43,12 @@ UserModel.prototype.findUserByPrefix = function(db, prefix, callback) {
 }
 
 /**
- * callback(response): response containing success, message.
- * If success is true message is the user id, otherwise the error string.
- */
-UserModel.prototype.getIdFromEmail = function(db, email, callback) {
-    this.getIdsFromEmails(db, [email], function(response) {
-        if (response.success) {
-            callback(cb.success(response.message[0]));
-        } else {
-            callback(cb.failed(response.message));
-        }
-    });
-}
-
-/**
  * emails: array of emails. example: ["a@a.nl", "b@b.nl"]
  * callback(response): response containing success, message.
  * If success is true message is an array of ids, example: [1, 2, 3]
  * otherwise it contains the error message.
  */
-UserModel.prototype.getIdsFromEmails = function(db, emails, callback) {
+UserModel.prototype.getUserDataFromEmails = function(db, emails, callback) {
     try {
         if (emails == undefined) {
             callback(cb.failed("No emails supplied."));
@@ -91,11 +77,15 @@ UserModel.prototype.getIdsFromEmails = function(db, emails, callback) {
                     return;
                 }
 
-                var ids = [];
+                var data = [];
                 for (var i=0; i<documents.length; i++) {
-                    ids.push(documents[i]._id.toString());
+                    data.push({
+                        id: documents[i]._id.toString(),
+                        name: documents[i].name,
+                        email: documents[i].email
+                    });
                 }
-                callback(cb.success(ids));
+                callback(cb.success(data));
             }
         )
     } catch(error) {

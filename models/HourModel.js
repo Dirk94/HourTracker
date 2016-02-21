@@ -1,14 +1,11 @@
+
 var cb = require("../helpers/callback.js");
 var flow = require("flow");
 var time = require("../helpers/time.js");
 
-var ProjectModel = require("./ProjectModel.js");
-
 const COLLECTION = "hours";
 
 var HourModel = function() { };
-
-var THIS = this;
 
 HourModel.prototype.create = function(db, session, data, callback) {
     try {
@@ -36,6 +33,8 @@ HourModel.prototype.create = function(db, session, data, callback) {
 
         flow.exec(
             function() {
+                // Done like this because both modules can't reference each other at the same time.
+                var ProjectModel = require("./ProjectModel.js");
                 ProjectModel.getProjectFromId(db, data.project, this);
             },
             function(response) {
@@ -97,6 +96,25 @@ HourModel.prototype.delete = function(db, session, hourid, callback) {
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
         log.error("HourModel.prototype.delete: " + error);
+    }
+}
+
+HourModel.prototype.deleteHoursOfProject = function(db, projectid, callback) {
+    try {
+        var hours = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                hours.remove({project: projectid}, {}, this);
+            }, function(error) {
+                if (error) { throw error; }
+
+                callback(cb.success("Hours deleted successfully."));
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("HourModel.prototype.deleteHoursOfProject: " + error);
     }
 }
 
@@ -162,7 +180,7 @@ HourModel.prototype.getProjectStats = function(db, session, projectid, callback)
     }
 }
 
-HourModel.prototype.getProjectLastLogged = function(db, session, projectid, callback) {
+HourModel.prototype.getProjectHours = function(db, session, projectid, callback) {
     try {
         var hours = db.get(COLLECTION);
 
@@ -179,5 +197,61 @@ HourModel.prototype.getProjectLastLogged = function(db, session, projectid, call
         log.error("HourModel.prototype.getProjectLastLogged: " + error);
     }
 }
+
+HourModel.prototype.getUserTotalHours = function(db, session, callback) {
+    try {
+        var hours = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                hours.find({user: session.userid}, {}, this);
+            }, function(error, documents) {
+                if (error) { throw error; }
+
+                var hours = 0, hoursThisMonth = 0, hoursPerProject = [];
+                var currentMonth = new Date().getMonth();
+
+                for (var i=0; i<documents.length; i++) {
+                    document = documents[i];
+
+                    hours += parseFloat(document.hours);
+                    var month = parseInt(document.date.match(/\d\d-(\d\d)-\d\d\d\d/)[1])-1;
+                    if (currentMonth == month) {
+                        hoursThisMonth += parseFloat(document.hours);
+                    }
+
+                    var index = -1;
+                    for (var j=0; j<hoursPerProject.length; j++) {
+                        if (hoursPerProject[j].name == document.projectName) {
+                            index = j;
+                            break;
+                        }
+                    }
+                    if (index == -1) {
+                        hoursPerProject.push({
+                            name: document.projectName,
+                            hours: parseFloat(document.hours)
+                        })
+                    } else {
+                        hoursPerProject[index].hours += parseFloat(document.hours)
+                    }
+                }
+                for (var i=0; i<hoursPerProject.length; i++) {
+                    hoursPerProject[i].hours = hoursPerProject[i].hours.toFixed(1);
+                }
+
+                callback(cb.success({
+                    hours: hours.toFixed(1),
+                    hoursThisMonth: hoursThisMonth.toFixed(1),
+                    hoursPerProject: hoursPerProject
+                }))
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("HourModel.prototype.getUserTotalHours: " + error);
+    }
+}
+
 
 module.exports = new HourModel();

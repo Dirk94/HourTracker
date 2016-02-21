@@ -6,7 +6,61 @@ block breadcrumbs
             function($scope, $http) {
                 $scope.project = !{JSON.stringify(project)};
                 $scope.stats = !{JSON.stringify(stats)};
-                $scope.lastlogged = !{JSON.stringify(lastlogged)};
+                $scope.hours = !{JSON.stringify(hours)};
+                $scope.user = !{JSON.stringify(user)};
+                
+                var resetShowDelete = function() {    
+                    for (var i=0; i<$scope.hours.length; i++) {
+                        $scope.hours[i].showDelete = true;
+                    }
+                }
+                
+                resetShowDelete();
+                
+                $scope.delete = function(hour) {
+                    hour.showDelete = false;
+                    
+                    $http({
+                        method: "DELETE",
+                        url: "/api/users/" + $scope.user.userid + "/hours/" + hour._id,
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    }).then(function success(response) {
+                        if (response.data.success) {
+                            $http({
+                                method: "GET",
+                                url: "/api/users/" + $scope.user.userid + "/project/" + hour.project + "/hours",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                }
+                            }).then(function success(response) {
+                                if (response.data.success) {
+                                    $scope.hours = response.data.message;
+                                    resetShowDelete();
+                                } else {
+                                    hour.showDelete = true;
+                                }
+                            }, function error(response) {
+                                hour.showDelete = true;
+                            });
+                            
+                            $http({
+                                method: "GET",
+                                url: "/api/users/" + $scope.user.userid + "/project/" + hour.project + "/stats",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                }
+                            }).then(function success(response) {
+                                $scope.stats = response.data.message;
+                            }, function error(response) { });
+                        } else {
+                            hour.showDelete = true;
+                        }
+                    }, function error(response) {
+                        hour.showDelete = true;
+                    })
+                }
             }
         ]);
     
@@ -17,9 +71,11 @@ block breadcrumbs
 block account-content
     div(ng-controller="ViewController")
         h3 {{ project.name }}
-        p {{ project.description }}
-            
+        p(ng-if="project.description") 
+            i Description: {{ project.description }}
+        hr
         
+        h4 Hours
         table(class="table")
             tbody
                 tr
@@ -34,7 +90,16 @@ block account-content
                     td Your Hours this Month
                     td {{ stats.hoursThisMonth }}
 
-        h3 Your Logged Hours
+        hr
+        
+        div(ng-if="project.users.length > 0")
+            h4 Collaborators
+            ul(class="list-group")
+                li(class="list-group-item" ng-repeat="user in project.users") {{ user.name }} | {{ user.email }}
+
+            hr
+
+        h4 Your Logged Hours
         table(class="table table-striped")
             thead
                 tr
@@ -44,25 +109,16 @@ block account-content
                     th Hours
 
             tbody
-                tr(ng-repeat="hour in lastlogged")
+                tr(ng-repeat="hour in hours")
                     td
                         a(href="/user/project/{{hour.project}}") {{hour.projectName}}
                     td {{hour.date}}
                     td {{hour.from}} - {{hour.till}}
                     td {{hour.hours}}
                     td 
-                        a(ng-click="delete(hour)" ng-show="!hour.showDelete" class="btn btn-xs btn-danger") Delete
-                        div(ng-show="hour.showDelete")
+                        a(ng-click="delete(hour)" ng-show="hour.showDelete" class="btn btn-xs btn-danger") Delete
+                        div(ng-show="!hour.showDelete")
                             i(class="fa fa-spinner fa-spin")
                             | &nbsp;Deleting
         
-        p Showing 1 of 1 entries
-        nav
-            ul(class="pagination")
-                li
-                    a(href="#" aria-label="Previous")
-                        span(aria-hidden="true") &laquo; previous
-                    
-                    li
-                        a(href="#" aria-label="Next")
-                            span(aria-hidden="true") next &raquo;
+        

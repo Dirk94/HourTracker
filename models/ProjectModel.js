@@ -1,5 +1,6 @@
 var cb = require("../helpers/callback.js");
 var UserModel = require("./UserModel.js");
+var HourModel = require("./HourModel.js");
 var flow = require("flow");
 
 const COLLECTION = "projects";
@@ -22,15 +23,16 @@ ProjectModel.prototype.create = function(db, session, data, callback) {
 
         flow.exec(
             function() {
-                UserModel.getIdsFromEmails(db, data.users, this);
+                UserModel.getUserDataFromEmails(db, data.users, this);
             }, function(response) {
-                var ids = response.success ? response.message : [];
+                var userdata = response.success ? response.message : [];
+
                 var projects = db.get(COLLECTION);
 
                 projects.insert({
                     name: data.name,
                     creator: session.userid,
-                    users: ids,
+                    users: userdata,
                     description: data.description,
                     datetime: new Date()
                 }, this);
@@ -45,6 +47,83 @@ ProjectModel.prototype.create = function(db, session, data, callback) {
     } catch(error) {
         callback(cb.failed("Unknown error occured."));
         log.error("ProjectModel.prototype.create: " + error);
+    }
+}
+
+ProjectModel.prototype.delete = function(db, session, projectid, callback) {
+    try {
+        var projects = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                projects.findById(projectid, {}, this);
+            }, function(error, document) {
+                if (error) { throw error; }
+                if (document == undefined) {
+                    callback(cb.failed("Project not found."));
+                    return;
+                }
+
+                if (document.creator != session.userid) {
+                    callback(cb.failed("You don't have permission to do this."));
+                    return;
+                }
+
+                HourModel.deleteHoursOfProject(db, projectid, this);
+            }, function(response) {
+                if (!response.success) {
+                    callback(response);
+                    return;
+                }
+
+                projects.remove({_id: projectid}, this);
+            }, function(error) {
+                if (error) { throw error; }
+                callback(cb.success("Project deleted successfully."));
+            }
+        );
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        console.log("ProjectModel.delete: " + error);
+    }
+}
+
+ProjectModel.prototype.edit = function(db, session, data, callback) {
+    try {
+        var projects = db.get(COLLECTION);
+
+        flow.exec(
+            function() {
+                projects.findById(data._id, {}, this);
+            }, function(error, document) {
+                if (error) { throw error; }
+                if (document == undefined) {
+                    callback(cb.failed("Project not found."));
+                    return;
+                }
+
+                if (document.creator != session.userid) {
+                    callback(cb.failed("You don't have permission to do this."));
+                    return;
+                }
+
+                UserModel.getUserDataFromEmails(db, data.users, this);
+            }, function(response) {
+                var userdata = response.success ? response.message : [];
+
+                projects.findAndModify({ _id: data._id }, { $set: {
+                    name: data.name,
+                    users: userdata,
+                    description: data.description
+                } }, this);
+            }, function(error, project) {
+                if (error) { throw error; }
+                callback(cb.success(project));
+            }
+        )
+    } catch(error) {
+        callback(cb.failed("Unknown error occured."));
+        log.error("ProjectModel.prototype.edit: " + error);
     }
 }
 

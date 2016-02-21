@@ -22,6 +22,26 @@ router.delete("/users/:userid/hours/:hourid", middleware.apiAuth, function(req, 
     )
 });
 
+router.get("/users/:userid/project/:projectid/hours", middleware.apiAuth, function(req, res, next) {
+    flow.exec(
+        function() {
+            HourModel.getProjectHours(req.db, req.session, req.params.projectid, this);
+        }, function(response) {
+            res.send(response);
+        }
+    )
+});
+
+router.get("/users/:userid/project/:projectid/stats", middleware.apiAuth, function(req, res, next) {
+    flow.exec(
+        function() {
+            HourModel.getProjectStats(req.db, req.session, req.params.projectid, this);
+        }, function(response) {
+            res.send(response);
+        }
+    )
+});
+
 // Creates a new hour entry.
 router.post("/users/:userid/hours", middleware.apiAuth, function(req, res, next) {
     flow.exec(

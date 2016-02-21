@@ -1,44 +1,94 @@
 extends account-base
 
 block breadcrumbs
+    script.
+        app.controller("ProjectsController", ["$scope", "$http",
+            function($scope, $http) {
+                $scope.user = !{JSON.stringify(user)};
+                $scope.created = !{JSON.stringify(created)};
+                $scope.added = !{JSON.stringify(added)};
+                
+                var resetShowDelete = function() {    
+                    for (var i=0; i<$scope.created.length; i++) {
+                        $scope.created[i].showButtons = true;
+                    }
+                }
+                
+                resetShowDelete();
+                
+                $scope.delete = function(project) {
+                    project.showButtons = false;
+                    $http({
+                        method: "DELETE",
+                        url: "/api/users/" + $scope.user.userid + "/projects/" + project._id,
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    }).then(function success(response) {
+                        if (response.data.success) {
+                            $http({
+                                method: "GET",
+                                url: "/api/users/" + $scope.user.userid + "/projects",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                }
+                            }).then(function success(response) {
+                                $scope.created = response.data.created;
+                                $scope.added = response.data.added;
+                                resetShowDelete();
+                            }, function error(response) {
+                                project.showButtons = true;
+                            })
+                        } else {
+                            project.showButtons = true;
+                        }
+                    }, function error(response) {
+                        project.showButtons = true;
+                    });
+                }
+            }
+        ]);
     
     li 
         a(href="/user/home") Account Home
     li Your Projects
 
-block account-content 
-            p Can't find your project? 
-                a(href="/user/project/create") Create a new one
+block account-content             
+    div(ng-controller="ProjectsController")
+        p Can't find your project? 
+            a(href="/user/project/create") Create a new one
 
-            h3 Projects Created by You
-            table(class="table table-striped")
-                thead
-                    tr  
-                        th Project
-                        th Creator
-                        th Collaborators
-                        th Your hours
-                        th Total hours
-                    
-                tbody
-                    each val in created
-                        tr
-                            td
-                                a(href="/user/project/"+val._id)= val.name
-                            td Yes
-                            td=val.users.length+1
-                            td 0.0
-                            td 0.0
-                            td
-                                a(href="/user/project/"+val._id+"/edit" class="btn btn-xs btn-default") Edit
-                                &nbsp;
-                                a(href="/user/project/"+val._id+"/delete" class="btn btn-xs btn-danger") Delete
-                                
-                    each val in added
-                        tr
-                            td 
-                                a(href="/user/project/"+val._id)= val.name
-                            td No
-                            td=val.users.length+1
-                            td 0.0
-                            td 0.0
+        h3 Projects Created by You
+        table(class="table table-striped")
+            thead
+                tr  
+                    th Project
+                    th Creator
+                    th Collaborators
+                    th Your hours
+                    th Total hours
+                
+            tbody
+                tr(ng-repeat="project in created")
+                    td
+                        a(href="/user/project/{{project._id}}") {{ project.name }}
+                    td Yes
+                    td {{ project.users.length+1 }}
+                    td 0.0
+                    td 0.0
+                    td
+                        div(ng-if="project.showButtons == true")
+                            a(href="/user/project/{{project._id}}/edit" class="btn btn-xs btn-default") Edit
+                            &nbsp;
+                            a(ng-click="delete(project)" class="btn btn-xs btn-danger") Delete
+                        div(ng-if="project.showButtons == false")
+                            i(class="fa fa-spinner fa-spin")
+                            | &nbsp;Deleting
+                            
+                tr(ng-repeat="project in added")
+                    td 
+                        a(href="/user/project/{{project._id}}") {{ project.name }}
+                    td No
+                    td {{ project.users.length+1 }}
+                    td 0.0
+                    td 0.0

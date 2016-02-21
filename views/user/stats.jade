@@ -1,0 +1,82 @@
+extends account-base
+
+block breadcrumbs
+    script.
+        var ticks = [], data = [];
+        
+        app.controller("StatsController", ["$scope", "$http",
+            function($scope, $http) {
+                $scope.user = !{JSON.stringify(user)};
+                $scope.stats = !{JSON.stringify(stats)};
+                
+                for (var i=0; i<$scope.stats.hoursPerProject.length; i++) {
+                    var hours = $scope.stats.hoursPerProject[i];
+                    ticks.push([i, hours.name]);
+                    data.push([i, hours.hours]);
+                }
+                
+                console.log(JSON.stringify(ticks));
+            }
+        ]);
+        
+        $(document).ready(function() {
+            var options = {
+                series:  {
+                    color: "rgba(51, 122, 183, 1)",
+                    bars: {
+                        show: true,
+                        barWidth: 0.9,
+                        align: "center",
+                        zero: true,
+                        fill: true
+                    }
+                },
+                xaxis: {
+                    ticks: ticks
+                },
+                grid: {
+                    hoverable: true
+                }
+            }
+            
+            $.plot($("#placeholder"), [data], options);
+            
+            $("#placeholder").bind("plothover", function (event, pos, item) {
+                if (item) {
+                    $("#tooltip").html(item.datapoint[1].toFixed(1) + " hours")
+                        .css({top: item.pageY-25, left: item.pageX-30})
+                        .show();
+                } else {
+                    $("#tooltip").hide();
+                }
+            });
+            
+            $("<div class='graph-tooltip' id='tooltip'></div>").css({
+                position: "absolute",
+                display: "none"
+            }).appendTo("body");
+        })
+    
+    li 
+        a(href="/user/home") Account Home
+    li Stats
+
+block account-content
+    div(ng-controller="StatsController")
+        h3 Stats
+        
+        h4 Hours
+        table(class="table")
+            tbody            
+                tr 
+                    td Your Total Hours
+                    td {{ stats.hours }}
+                    
+                tr 
+                    td Your Hours this Month
+                    td {{ stats.hoursThisMonth }}
+
+        hr
+        
+        h4 Hours per project
+        div(id="placeholder" style="width:100%;height:300px")
