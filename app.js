@@ -2,7 +2,7 @@ var express = require("express");
 var http = require("http");
 var path = require("path");
 var bodyparser = require("body-parser");
-var db = require("monk")("localhost/timetracker");
+var db = require("monk")("localhost/hourtracker");
 var session = require("express-session");
 var MongoStore = require("connect-mongo")(session);
 var fs = require("fs");
@@ -44,5 +44,5 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/bower_components", express.static(path.join(__dirname, "bower_components")));
 
 http.createServer(app).listen(80, function() {
-    console.log("TimeTracker server listening on port " + 80);
+    console.log("HourTracker server listening on port " + 80);
 });
