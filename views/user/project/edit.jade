@@ -77,8 +77,7 @@ block breadcrumbs
                         for (var i=0; i<project.addusers.length; i++) {
                             users.push(project.addusers[i]);
                         }
-                    }
-                    project.users = users;         
+                    }       
                     
                     $http({
                         method: "POST",
@@ -86,7 +85,12 @@ block breadcrumbs
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        data: project
+                        data: {
+                            _id: project._id,
+                            name: project.name,
+                            users: users,
+                            description: project.description
+                        }
                     }).then(function success(response) {
                         $scope.waitingForResponse = false;
                         $scope.showResponse = true;

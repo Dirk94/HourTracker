@@ -10,7 +10,7 @@ var Log = require("log");
 
 var app = express();
 
-log = new Log('debug', fs.createWriteStream('timetracker.log'));
+log = new Log('debug', fs.createWriteStream('hourtracker.log'));
 
 app.use(session({
     secret: "abc",

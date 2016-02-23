@@ -3,10 +3,38 @@ extends base
 block content
     div(class="col-lg-8 col-lg-offset-2")
         div(class="jumbotron")
-            h1 Time Tracker
+            h1 Hour Tracker
             p
                 | Track how much time you spent on your projects.
 
             p
                 a(id="register-button-homepage" class="btn btn-lg btn-primary" href="/register" role="button") Register
                 a(id="login-button-homepage" class="btn btn-lg btn-default" href="/login" role="button") Login
+                
+        div(class="row")
+            hr 
+            
+            div(class="col-md-4" style="text-align: justify;")
+                h3
+                    | Hour Tracker
+                
+                p
+                    | Hour Tracker allows you to log how much yours you spend
+                    | on your projects. It is possible to add multiple users to
+                    | the same project when working with multiple users.
+                    
+            div(class="col-md-4")
+                h3
+                    | About
+                
+                p
+                    | I created Hour Tracker to learn more about the AngularJS Framework.
+                    | Furthermore, I also wanted to learn how to create a NodeJS server in combination with the Express framework.
+                
+            div(class="col-md-4")
+                h3
+                    | The Source
+                
+                p
+                    | The source code can be found on Github 
+                    a(href="https://github.com/Dirk94/TimeTracker") here

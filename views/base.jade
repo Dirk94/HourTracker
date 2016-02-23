@@ -4,7 +4,7 @@
 
 
 doctype html
-html(lang="en" ng-app="timetracker")
+html(lang="en" ng-app="hourtracker")
     head
         meta(charset="utf-8")
         meta(http-equiv="X-UA-Compatible" content="IE=edge")
@@ -31,7 +31,7 @@ html(lang="en" ng-app="timetracker")
         
         script.
             // initialize the angular application.
-            app = angular.module("timetracker", []);
+            app = angular.module("hourtracker", []);
             
             // initialize the tooltips.
             $(function () {
@@ -54,7 +54,7 @@ html(lang="en" ng-app="timetracker")
                                 span(class="icon-bar")
                                 span(class="icon-bar")
                             
-                            a(class="navbar-brand" href="/") Time Tracker
+                            a(class="navbar-brand" href="/") Hour Tracker
                         
                         div(id="navbar" class="navbar-collapse collapse")
                             ul(class="nav navbar-nav")

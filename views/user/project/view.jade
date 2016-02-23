@@ -75,6 +75,11 @@ block account-content
             i Description: {{ project.description }}
         hr
         
+        h3 Quick Actions
+        a(href="/user/home" class="btn btn-primary btn-quick-action") Log Hours
+        a(href="/user/project/{{project._id}}/edit" class="btn btn-default btn-quick-action") Edit project
+        hr
+        
         h4 Hours
         table(class="table")
             tbody
