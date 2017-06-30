@@ -14,7 +14,10 @@ log = new Log('debug', fs.createWriteStream('hourtracker.log'));
 
 app.use(session({
     secret: "abc",
-    store: new MongoStore({db: db.driver})
+    store: new MongoStore({
+	url: 'mongodb://localhost:27017/hourtracker'
+	
+    })
 }));
 
 // Register the db object.

@@ -15,6 +15,8 @@ router.get("/user/home", middleware.auth, function(req, res, next) {
             ProjectModel.getAllProjects(req.db, req.session, this.MULTI("projects"));
             HourModel.getLastLogged(req.db, req.session, this.MULTI("hours"));
         }, function(response) {
+		console.log(response);
+
             res.render("user/home", {
                 user: response["user"].success ? response["user"].message : {},
                 hours: response["hours"].success ? response["hours"].message : [],

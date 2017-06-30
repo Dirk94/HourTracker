@@ -9,7 +9,7 @@
     "express": "latest",
     "jade": "latest",
     "body-parser": "latest",
-    "monk": "latest",
+    "monk": "2.1.0",
     "express-session": "latest",
     "connect-mongo": "latest",
     "flow": "latest",

@@ -102,6 +102,8 @@ UserModel.prototype.getUser = function(db, id, callback) {
     try {
         var users = db.get(COLLECTION);
 
+	console.log("USERS:");
+console.log(users);
         flow.exec(
             function() {
                 users.findById(id, this);
@@ -120,8 +122,11 @@ UserModel.prototype.getUser = function(db, id, callback) {
                     date: document.datetime
                 }));
             }
-        );
+        )
     } catch(error) {
+	console.log("NOW LOGGING ERROR");
+	console.log(error);
+	console.log("DONE LOGGING ERROR");
         callback(cb.failed("Unknown error occured."));
         log.error("UserModel.prototype.getUser: " + error);
     }

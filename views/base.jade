@@ -29,17 +29,7 @@ html(lang="en" ng-app="hourtracker")
         script(src="/../bower_components/flot/jquery.flot.resize.js")
         
         
-        script.
-            // initialize the angular application.
-            app = angular.module("hourtracker", []);
-            
-            // initialize the tooltips.
-            $(function () {
-                $('[data-toggle="tooltip"]').tooltip()
-            })
-            
-        script(src="/js/directives.js")
-        
+                
         block head
         
         body
@@ -88,3 +78,13 @@ html(lang="en" ng-app="hourtracker")
                                                 a(href=val) #{key}
                         
                 block content
+
+                script.
+                    // initialize the angular application.
+                    app = angular.module("hourtracker", []);
+                    // initialize the tooltips.
+                    $(function () {
+                        $('[data-toggle="tooltip"]').tooltip()
+                    })
+                script(src="/js/directives.js")
+
